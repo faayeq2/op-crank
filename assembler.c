@@ -3,6 +3,7 @@
 #include<stdlib.h>
 
 void tokenise_line(const char* line){
+    // split each line into tokens
    
 }
 
@@ -20,7 +21,7 @@ int main(int argc, char *argv[]) {
     }
 
     char line[64];
-    
+
     // fgets takes string, size, stream
     while (fgets(line, sizeof(line), file))
     {
