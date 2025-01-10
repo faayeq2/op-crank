@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
     }
     
 
-
+    free(line);
     fclose(file);
     return 0;
 }
