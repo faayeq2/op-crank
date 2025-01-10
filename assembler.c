@@ -3,7 +3,19 @@
 #include<stdlib.h>
 
 void tokenise_line(const char* line){
-    // split each line into tokens
+
+    // split each line into tokens based on delims
+    const char* delimiters = "\t,:\n()[];";
+    char * line_copy = strdup(line);
+
+    char* token = strtok(line_copy, delimiters);
+    while (token!=NULL)
+    {
+        printf("tokens = %s\n", token);
+        token = strtok(NULL, delimiters);
+    }
+    
+    free(line_copy);
    
 }
 
@@ -29,7 +41,6 @@ int main(int argc, char *argv[]) {
     }
     
 
-    free(line);
     fclose(file);
     return 0;
 }
