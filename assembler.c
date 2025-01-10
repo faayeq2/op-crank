@@ -15,7 +15,7 @@ void tokenise_line(const char* line){
     memcpy(line_copy, line, strlen(line)+1);
 
     
-    char* cmnt_start = strcpy(line_copy, ';');
+    char* cmnt_start = strchr(line_copy, ';');
     if(cmnt_start!=NULL){
         *(cmnt_start) = '\0';                               // truncate string
     }
