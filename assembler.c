@@ -6,16 +6,22 @@ void tokenise_line(const char* line){
 
     // split each line into tokens based on delims
     const char* delimiters = "\t,:\n()[];";
-    char * line_copy = strdup(line);
+    //char * line_copy = strdup(line);
+    char * line_copy = malloc(strlen(line)+1);
+    if(line_copy == NULL){
+        perror("Couldn't allocate line");
+        exit(1);
+    }
+    memcpy(line_copy, line, strlen(line)+1);
 
+    
     char* token = strtok(line_copy, delimiters);
     while (token!=NULL)
     {
         printf("tokens = %s\n", token);
         token = strtok(NULL, delimiters);
     }
-    
-    free(line_copy);
+       free(line_copy);
    
 }
 
