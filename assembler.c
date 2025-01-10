@@ -5,7 +5,7 @@
 void tokenise_line(const char* line){
 
    
-    const char* delimiters = "\t,:\n()[];";                 // split each line into tokens based on delims         
+    const char* delimiters = "\t,:\n()[]; ";                 // split each line into tokens based on delims         
 
     char * line_copy = malloc(strlen(line)+1);
     if(line_copy == NULL){
@@ -24,7 +24,7 @@ void tokenise_line(const char* line){
     char* token = strtok(line_copy, delimiters);
     while (token!=NULL)
     {
-        printf("tokens = %s\n", token);
+        printf("tokens = [%s]\n", token);
         token = strtok(NULL, delimiters);
     }
 
