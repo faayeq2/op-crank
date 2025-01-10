@@ -45,7 +45,6 @@ int main(int argc, char *argv[]) {
     }
 
     char line[64];
-
                                                             // fgets takes string, size, stream
     while (fgets(line, sizeof(line), file))
     {
