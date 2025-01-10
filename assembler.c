@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include<string.h>
+#include<stdlib.h>
 
 void tokenise_line(const char* line){
    
@@ -17,6 +19,16 @@ int main(int argc, char *argv[]) {
        return 1; 
     }
 
-    char line_buffer[256];
+    char line[64];
     
+    // fgets takes string, size, stream
+    while (fgets(line, sizeof(line), file))
+    {
+        tokenise_line(line);
+    }
+    
+
+
+    fclose(file);
+    return 0;
 }
