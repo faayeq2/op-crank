@@ -2,6 +2,21 @@
 #include<string.h>
 #include<stdlib.h>
 
+#define MAP_SIZE 100
+
+typedef struct sym_pair{
+  char* label;
+  int address;
+  struct sym_pair* next;  
+} sym_pair;
+
+typedef struct sym_table {
+   sym_pair *sym_table[MAP_SIZE];
+} sym_table;
+
+
+
+
 void tokenise_line(const char* line){
 
    
