@@ -16,8 +16,7 @@ typedef struct sym_table {
 
 void tokenise_line(const char *line) {
 
-	const char *delimiters =
-		"\t,:\n()[]; "; // split each line into tokens based on delims
+	const char *delimiters = "\t,:\n()[]; "; // split each line into tokens based on delims
 
 	char *line_copy = malloc(strlen(line) + 1);
 	if (line_copy == NULL) {
