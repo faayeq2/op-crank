@@ -1,70 +1,64 @@
 #include <stdio.h>
-#include<string.h>
-#include<stdlib.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define MAP_SIZE 100
 
-typedef struct sym_pair{
-  char* label;
-  int address;
-  struct sym_pair* next;  
+typedef struct sym_pair {
+	char *label;
+	int address;
+	struct sym_pair *next;
 } sym_pair;
 
 typedef struct sym_table {
-   sym_pair *sym_table[MAP_SIZE];
+	sym_pair *sym_table[MAP_SIZE];
 } sym_table;
 
+void tokenise_line(const char *line) {
 
+	const char *delimiters =
+		"\t,:\n()[]; "; // split each line into tokens based on delims
 
+	char *line_copy = malloc(strlen(line) + 1);
+	if (line_copy == NULL) {
+		perror("Couldn't allocate line");
+		exit(1);
+	}
+	memcpy(line_copy, line, strlen(line) + 1);
 
-void tokenise_line(const char* line){
+	char *cmnt_start = strchr(line_copy, ';');
+	if (cmnt_start != NULL) {
+		*(cmnt_start) = '\0'; // truncate string
+	}
 
-    const char* delimiters = "\t,:\n()[]; ";                 // split each line into tokens based on delims         
+	char *token = strtok(line_copy, delimiters);
+	while (token != NULL) {
+		printf("tokens = [%s]\n", token);
+		token = strtok(NULL, delimiters);
+	}
 
-    char * line_copy = malloc(strlen(line)+1);
-    if(line_copy == NULL){
-        perror("Couldn't allocate line");
-        exit(1);
-    }
-    memcpy(line_copy, line, strlen(line)+1);
-
-    
-    char* cmnt_start = strchr(line_copy, ';');
-    if(cmnt_start!=NULL){
-        *(cmnt_start) = '\0';                               // truncate string
-    }
-
-    char* token = strtok(line_copy, delimiters);
-    while (token!=NULL)
-    {
-        printf("tokens = [%s]\n", token);
-        token = strtok(NULL, delimiters);
-    }
-
-       free(line_copy);
+	free(line_copy);
 }
 
 int main(int argc, char *argv[]) {
-    if(argc!=2){
-        printf("Using: %s <f_name>\n, argv[0]");
-        return 1;
-    }
-    const char* f_name = argv[1];
+	if (argc != 2) {
+		printf("Using: %s <f_name>\n, argv[0]");
+		return 1;
+	}
+	const char *f_name = argv[1];
 
-    FILE *file = fopen(f_name, "r");
-    if(file==NULL){
-       perror("Can't open file for reading");
-       return 1; 
-    }
+	FILE *file = fopen(f_name, "r");
+	if (file == NULL) {
+		perror("Can't open file for reading");
+		return 1;
+	}
 
-    char line[64];
-                                                            // fgets takes string, size, stream
-    while (fgets(line, sizeof(line), file))
-    {
-        tokenise_line(line);
-    }
-    
+	char line[64];
+	// fgets takes string, size, stream
+	while (fgets(line, sizeof(line), file)) {
+		tokenise_line(line);
+	}
 
-    fclose(file);
-    return 0;
+	fclose(file);
+	return 0;
 }
