@@ -19,7 +19,6 @@ typedef struct sym_table {
 
 void tokenise_line(const char* line){
 
-   
     const char* delimiters = "\t,:\n()[]; ";                 // split each line into tokens based on delims         
 
     char * line_copy = malloc(strlen(line)+1);
@@ -34,7 +33,6 @@ void tokenise_line(const char* line){
     if(cmnt_start!=NULL){
         *(cmnt_start) = '\0';                               // truncate string
     }
-
 
     char* token = strtok(line_copy, delimiters);
     while (token!=NULL)
