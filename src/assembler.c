@@ -10,9 +10,30 @@ typedef struct sym_pair {
 	struct sym_pair *next;
 } sym_pair;
 
+
+typedef struct instruction
+{
+    const char* mnemonic;
+    int operand_count;
+    const char ** operand_types;
+    unsigned char opcode;
+
+} instruction;
+
+instruction instruction_set[] = {
+    {"MOV", 2, (const char *[]){"reg", "reg"}, 0x89},
+    {"ADD", 2, (const char *[]){"reg", "imm"}, 0x83},
+    {"SUB", 2, (const char *[]){"reg", "reg"}, 0x29},
+    // Add more instructions as needed
+};
+
+int instruction_set_size = (sizeof(instruction_set)/sizeof(instruction_set[0]));
+
+
 typedef struct sym_table {
 	sym_pair *sym_table[MAP_SIZE];
 } sym_table;
+
 
 void tokenise_line(const char *line) {
 
@@ -33,6 +54,20 @@ void tokenise_line(const char *line) {
 	char *token = strtok(line_copy, delimiters);
 	while (token != NULL) {
 		printf("tokens = [%s]\n", token);
+        int is_instruction=0;
+                for (int i = 0; i < instruction_set_size; i++) {
+            if (strcmp(instruction_set[i].mnemonic, token) == 0) {
+                printf("Instruction found: %s\n", token);
+                is_instruction = 1;
+                break;
+            }
+        }
+
+        if (!is_instruction) {
+            printf("Not an instruction,  label or data\n");
+        }
+
+
 		token = strtok(NULL, delimiters);
 	}
 
