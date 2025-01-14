@@ -1,3 +1,4 @@
 #ignore executable and read me files
 *.md
 *.exe
+*.txt
