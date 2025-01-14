@@ -1,4 +1,4 @@
-START: MOV AX, BX ; Initialize registers
+MOV AX, BX
+LABEL1:
 ADD AX, 5
-ADD AX, 3
-JMP START
+LABEL2: SUB AX, CX

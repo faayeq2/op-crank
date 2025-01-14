@@ -3,12 +3,22 @@
 #include <string.h>
 
 #define MAP_SIZE 100
+#define MAX_CODE_SIZE 1024
+#define MAX_DATA_SIZE 512
 
 typedef struct sym_pair {
 	char *label;
 	int address;
 	struct sym_pair *next;
 } sym_pair;
+
+
+typedef struct sym_table {
+	sym_pair *sym_table[MAP_SIZE];
+} sym_table;
+
+sym_table global_table = {{NULL}};
+
 
 typedef struct instruction {
 	const char *mnemonic;
@@ -27,15 +37,67 @@ instruction instruction_set[] = {
 
 int instruction_set_size = (sizeof(instruction_set) / sizeof(instruction_set[0]));
 
-typedef struct sym_table {
-	sym_pair *sym_table[MAP_SIZE];
-} sym_table;
 
-void tokenise_line(const char *line) {
+unsigned int hash_func(const char *label) {
+    unsigned int hash = 0;
+    while (*label != '\0') {
+        hash = (hash * 31) + *label;
+		label++; 
+    }
+    return hash % MAP_SIZE;
+}
 
-	const char *delimiters = "\t,:\n()[]; "; // split each line into tokens based on delims
+void print_sym_table(sym_table* table){
+	printf("\nPrinting symbol table:\n");
+	for(int i=0; i<MAP_SIZE;i++){
+		sym_pair* current = table->sym_table[i];
+		while(current!=NULL){
+			printf("Index: %d, Label: %s, Address: %d\n", i, current->label, current->address);
+            current = current->next;
+		}
+	}
+}
 
-	char *line_copy = malloc(strlen(line) + 1);
+
+
+void insert_label(const char* label, int addr, sym_table* table){
+	unsigned int index = hash_func(label);
+
+	sym_pair* pair=malloc(sizeof(sym_pair)); // allocate pair to add
+	if(pair==NULL){
+		perror("Cant allocate mem for new pair");
+		exit(1);
+	}
+
+	pair->label = malloc(strlen(label)+1); // allocate mem for the label char*
+	if(pair->label==NULL){
+		perror("Cant allocate pair to insert's label");
+		exit(1);
+	}
+
+	pair->address = addr;	// update label and insert in hash table (avoid collisions)
+	memcpy(pair->label, label, strlen(label) + 1); // syn to pair.label = label
+	pair->next= NULL;
+
+	// handle collision
+	sym_pair* current = table->sym_table[index];
+	if(current==NULL){
+		table->sym_table[index]=pair;  // no collision
+	}
+	else{
+		pair->next=current; // allocate mem for the label char*
+		table->sym_table[index]=pair; 
+	}
+
+	printf("Inserted label: %s at address: %d\n:, label, addr");
+}
+
+
+void process_tokens(const char *line) {
+
+	const char *delimiters = "\t,\n()[]; "; // split each line into tokens based on delims
+
+	char *line_copy = malloc(strlen(line) + 1); // use line_copy as strtok changes input str
 	if (line_copy == NULL) {
 		perror("Couldn't allocate line");
 		exit(1);
@@ -48,8 +110,24 @@ void tokenise_line(const char *line) {
 	}
 
 	char *token = strtok(line_copy, delimiters);
+
 	while (token != NULL) {
-		printf("tokens = [%s]\n", token);
+		
+		// check if label
+		if(token[strlen(token)-1] == ':'){
+			token[strlen(token)-1] = '\0';
+			printf("tokens = [%s]\n", token);
+			//populate label table
+			insert_label(token, 0, &global_table);
+
+			token = strtok(NULL,delimiters);
+			continue;
+		}
+		else{
+			printf("tokens = [%s]\n", token); // redundant else just for checking printingm will remove later
+		}
+
+
 		int is_instruction = 0;
 		for (int i = 0; i < instruction_set_size; i++) {
 			if (strcmp(instruction_set[i].mnemonic, token) == 0) {
@@ -60,14 +138,17 @@ void tokenise_line(const char *line) {
 		}
 
 		if (!is_instruction) {
-			printf("Not an instruction,  label or data\n");
+			printf("Not an instruction\n");
 		}
 
 		token = strtok(NULL, delimiters);
 	}
 
+	print_sym_table(&global_table);
+
 	free(line_copy);
 }
+
 
 int main(int argc, char *argv[]) {
 	if (argc != 2) {
@@ -81,11 +162,17 @@ int main(int argc, char *argv[]) {
 		perror("Can't open file for reading");
 		return 1;
 	}
+	
+	unsigned char code_seg[MAX_CODE_SIZE];
+	int code_ptr=0;
+	unsigned char data_seg[MAX_DATA_SIZE];
+	int data_ptr=0;
 
 	char line[64];
+
 	// fgets takes string, size, stream
 	while (fgets(line, sizeof(line), file)) {
-		tokenise_line(line);
+		process_tokens(line);
 	}
 
 	fclose(file);
