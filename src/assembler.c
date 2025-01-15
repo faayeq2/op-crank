@@ -30,7 +30,6 @@ instruction instruction_set[] = {
 	{"MOV", 2, (const char *[]){"reg", "reg"}, 0x89},
 	{"ADD", 2, (const char *[]){"reg", "imm"}, 0x83},
 	{"SUB", 2, (const char *[]){"reg", "reg"}, 0x29},
-	// Add more instructions as needed
 };
 
 int instruction_set_size = (sizeof(instruction_set) / sizeof(instruction_set[0]));
