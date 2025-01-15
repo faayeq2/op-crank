@@ -43,10 +43,10 @@ unsigned int hash_func(const char *label) {
 	return hash % MAP_SIZE;
 }
 
-void print_sym_table(sym_table *table) {
+void print_sym_table(sym_table table) {
 	printf("\n-------Printing symbol table:-------\n");
 	for (int i = 0; i < MAP_SIZE; i++) {
-		sym_pair *current = table->sym_table[i];
+		sym_pair *current = table.sym_table[i];
 		while (current != NULL) {
 			printf("Index: %d, Label: %s, Address: %d\n", i, current->label, current->address);
 			current = current->next;
@@ -83,6 +83,8 @@ void insert_label(const char *label, unsigned int addr, sym_table *table) {
 	}
 
 	printf("Inserted label: %s at address: %d\n", label, addr);
+	free(pair);
+	free(pair->label);
 }
 
 void process_tokens(const char *line, unsigned int *code_ptr) {
@@ -139,7 +141,7 @@ void process_tokens(const char *line, unsigned int *code_ptr) {
 		token = strtok(NULL, delimiters);
 	}
 
-	print_sym_table(&global_table);
+	print_sym_table(global_table);
 	printf("Current code pointer: %d\n", *code_ptr);
 
 	free(line_copy);
@@ -165,10 +167,11 @@ int main(int argc, char *argv[]) {
 
 	char line[64];
 
-	// fgets takes string, size, stream
-	while (fgets(line, sizeof(line), file)) {
+	// first pass
+	while (fgets(line, sizeof(line), file)) { // fgets takes string, size, stream
 		process_tokens(line, &code_ptr);
 	}
+
 
 	fclose(file);
 	return 0;
