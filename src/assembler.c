@@ -45,7 +45,7 @@ unsigned int hash_func(const char *label) {
 }
 
 void print_sym_table(sym_table *table) {
-	printf("\nPrinting symbol table:\n");
+	printf("\n-------Printing symbol table:-------\n");
 	for (int i = 0; i < MAP_SIZE; i++) {
 		sym_pair *current = table->sym_table[i];
 		while (current != NULL) {
@@ -55,7 +55,7 @@ void print_sym_table(sym_table *table) {
 	}
 }
 
-void insert_label(const char *label, int addr, sym_table *table) {
+void insert_label(const char *label, unsigned int addr, sym_table *table) {
 	unsigned int index = hash_func(label);
 
 	sym_pair *pair = malloc(sizeof(sym_pair)); // allocate pair to add
@@ -83,10 +83,10 @@ void insert_label(const char *label, int addr, sym_table *table) {
 		table->sym_table[index] = pair;
 	}
 
-	printf("Inserted label: %s at address: %d\n:, label, addr");
+	printf("Inserted label: %s at address: %d\n", label, addr);
 }
 
-void process_tokens(const char *line) {
+void process_tokens(const char *line, unsigned int *code_ptr) {
 
 	const char *delimiters = "\t,\n()[]; "; // split each line into tokens based on delims
 
@@ -111,38 +111,44 @@ void process_tokens(const char *line) {
 			token[strlen(token) - 1] = '\0';
 			printf("tokens = [%s]\n", token);
 			// populate label table
-			insert_label(token, 0, &global_table);
+			insert_label(token, *code_ptr, &global_table);
 
 			token = strtok(NULL, delimiters);
 			continue;
-		} else {
-			printf("tokens = [%s]\n", token); // redundant else just for checking printingm will remove later
 		}
 
 		int is_instruction = 0;
+		int instr_num	   = 0;
+
 		for (int i = 0; i < instruction_set_size; i++) {
 			if (strcmp(instruction_set[i].mnemonic, token) == 0) {
 				printf("Instruction found: %s\n", token);
 				is_instruction = 1;
+				instr_num	   = i;
 				break;
 			}
 		}
 
-		if (!is_instruction) {
+		if (is_instruction) {
+			*code_ptr += instruction_set[instr_num].operand_count + 1;
+		} else {
 			printf("Not an instruction\n");
 		}
+
+		is_instruction = 0;
 
 		token = strtok(NULL, delimiters);
 	}
 
 	print_sym_table(&global_table);
+	printf("Current code pointer: %d\n", *code_ptr);
 
 	free(line_copy);
 }
 
 int main(int argc, char *argv[]) {
 	if (argc != 2) {
-		printf("Using: %s <f_name>\n, argv[0]");
+		printf("Using: %s <f_name>\n", argv[0]);
 		return 1;
 	}
 	const char *f_name = argv[1];
@@ -154,15 +160,15 @@ int main(int argc, char *argv[]) {
 	}
 
 	unsigned char code_seg[MAX_CODE_SIZE];
-	int code_ptr = 0;
+	unsigned int code_ptr = 0;
 	unsigned char data_seg[MAX_DATA_SIZE];
-	int data_ptr = 0;
+	unsigned int data_ptr = 0;
 
 	char line[64];
 
 	// fgets takes string, size, stream
 	while (fgets(line, sizeof(line), file)) {
-		process_tokens(line);
+		process_tokens(line, &code_ptr);
 	}
 
 	fclose(file);
