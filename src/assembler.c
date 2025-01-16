@@ -85,6 +85,21 @@ void insert_label(const char *label, unsigned int addr, sym_table *table) {
 	printf("Inserted label: %s at address: %d\n", label, addr);
 }
 
+unsigned int duplicate_label(const char* token){
+	for(int i=0; i<MAP_SIZE; i++){
+		sym_pair* current = global_table.sym_table[i];
+		while (current!=NULL)
+		{
+			if (strcmp(current->label, token)==0){
+				return 1;
+			}
+			current = current->next;
+		}
+	}
+	return 0;
+}
+
+
 void process_tokens(const char *line, unsigned int *code_ptr) {
 
 	const char *delimiters = "\t,\n()[]; "; // split each line into tokens based on delims
@@ -104,40 +119,39 @@ void process_tokens(const char *line, unsigned int *code_ptr) {
 	char *token = strtok(line_copy, delimiters);
 
 	while (token != NULL) {
-
 		// check if label
 		if (token[strlen(token) - 1] == ':') {
 			token[strlen(token) - 1] = '\0';
-			printf("tokens = [%s]\n", token);
-			// populate label table
-			insert_label(token, *code_ptr, &global_table);
+			// check for duplicating labels and insert
+			if (duplicate_label(token)==0) {
+				insert_label(token, *code_ptr, &global_table);
+				printf("tokens = [%s]\n", token);
+			}
+			else {
+				printf("duplicate token : [%s]\n", token);
+			}
 
 			token = strtok(NULL, delimiters);
 			continue;
 		}
 
 		int is_instruction = 0;
-		int instr_num	   = 0;
 
 		for (int i = 0; i < instruction_set_size; i++) {
 			if (strcmp(instruction_set[i].mnemonic, token) == 0) {
 				printf("Instruction found: %s\n", token);
 				is_instruction = 1;
-				instr_num	   = i;
+				*code_ptr += instruction_set[i].operand_count + 1;
 				break;
 			}
 		}
 
-		if (is_instruction) {
-			*code_ptr += instruction_set[instr_num].operand_count + 1;
-		} else {
+		if (!is_instruction) {
 			printf("Not an instruction\n");
-		}
-
-		is_instruction = 0;
+		} 
 
 		token = strtok(NULL, delimiters);
-	}
+	}	
 
 	print_sym_table(&global_table);
 	printf("Current code pointer: %d\n", *code_ptr);
@@ -169,8 +183,6 @@ int main(int argc, char *argv[]) {
 	while (fgets(line, sizeof(line), file)) {
 		process_tokens(line, &code_ptr);
 	}
-
-	
 
 	fclose(file);
 	return 0;
