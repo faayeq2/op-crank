@@ -100,7 +100,7 @@ unsigned int duplicate_label(const char* token){
 }
 
 
-void process_tokens(const char *line, unsigned int *code_ptr) {
+void process_tokens(const char *line, unsigned int *code_ptr, unsigned int *data_ptr) {
 
 	const char *delimiters = "\t,\n()[]; "; // split each line into tokens based on delims
 
@@ -181,7 +181,7 @@ int main(int argc, char *argv[]) {
 
 	// fgets takes string, size, stream
 	while (fgets(line, sizeof(line), file)) {
-		process_tokens(line, &code_ptr);
+		process_tokens(line, &code_ptr, &data_ptr);
 	}
 
 	fclose(file);
