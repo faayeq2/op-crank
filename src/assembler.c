@@ -16,6 +16,16 @@ typedef struct sym_table {
 	sym_pair *sym_table[MAP_SIZE];
 } sym_table;
 
+typedef struct  
+{
+	unsigned char* code_seg;
+	unsigned char* data_seg;
+	unsigned int* code_ptr;
+	unsigned int* data_ptr;
+	sym_table* table;
+	unsigned int line_num;
+} assembler_state;
+
 sym_table global_table = {{NULL}};
 
 typedef struct instruction {
@@ -99,8 +109,12 @@ unsigned int duplicate_label(const char* token){
 	return 0;
 }
 
+void process_directives(const char* token, const char* rest_of_line, assembler_state* state){
+	
+}
 
-void process_tokens(const char *line, unsigned int *code_ptr, unsigned int *data_ptr) {
+
+void process_tokens(const char *line, assembler_state* state) {
 
 	const char *delimiters = "\t,\n()[]; "; // split each line into tokens based on delims
 
@@ -122,9 +136,9 @@ void process_tokens(const char *line, unsigned int *code_ptr, unsigned int *data
 		// check if label
 		if (token[strlen(token) - 1] == ':') {
 			token[strlen(token) - 1] = '\0';
-			// check for duplicating labels and insert
-			if (duplicate_label(token)==0) {
-				insert_label(token, *code_ptr, &global_table);
+			
+			if (duplicate_label(token)==0) { // check for duplicating labels and insert
+				insert_label(token, *(state->code_ptr), &global_table);
 				printf("tokens = [%s]\n", token);
 			}
 			else {
@@ -135,13 +149,21 @@ void process_tokens(const char *line, unsigned int *code_ptr, unsigned int *data
 			continue;
 		}
 
+		else if(token[0]=='.') { // process directives
+			const char* rest_of_line = strtok(NULL, "");
+			process_directives(token, rest_of_line, state);
+			token = strtok(NULL,delimiters);
+			continue;
+		}
+
+		else{
 		int is_instruction = 0;
 
 		for (int i = 0; i < instruction_set_size; i++) {
 			if (strcmp(instruction_set[i].mnemonic, token) == 0) {
 				printf("Instruction found: %s\n", token);
 				is_instruction = 1;
-				*code_ptr += instruction_set[i].operand_count + 1;
+				*(state->code_ptr) += instruction_set[i].operand_count + 1;
 				break;
 			}
 		}
@@ -149,12 +171,13 @@ void process_tokens(const char *line, unsigned int *code_ptr, unsigned int *data
 		if (!is_instruction) {
 			printf("Not an instruction\n");
 		} 
-
+		}
+	
 		token = strtok(NULL, delimiters);
 	}	
 
 	print_sym_table(&global_table);
-	printf("Current code pointer: %d\n", *code_ptr);
+	printf("Current code pointer: %d\n", *(state->code_ptr));
 
 	free(line_copy);
 }
@@ -179,9 +202,19 @@ int main(int argc, char *argv[]) {
 
 	char line[64];
 
+	assembler_state state = {
+		.code_seg = code_seg,
+		.data_seg = data_seg,
+        .code_ptr = &code_ptr,
+        .data_ptr = &data_ptr,
+        .table = &global_table,
+        .line_num = 0,
+	};
+
 	// fgets takes string, size, stream
 	while (fgets(line, sizeof(line), file)) {
-		process_tokens(line, &code_ptr, &data_ptr);
+		state.line_num++;
+		process_tokens(line, &state);
 	}
 
 	fclose(file);
