@@ -7,9 +7,9 @@
 #define MAX_DATA_SIZE 512
 
 typedef struct sym_pair {
-	char *label;
-	int address;
-	struct sym_pair *next;
+	struct sym_pair *next; //8 bytes
+	char *label; // 8 bytes
+	int address; // 4 bytes
 } sym_pair;
 
 typedef struct sym_table {
@@ -30,16 +30,16 @@ sym_table global_table = {{NULL}};
 
 typedef struct instruction {
 	const char *mnemonic;
-	int operand_count;
 	const char **operand_types;
+	int operand_count;
 	unsigned char opcode;
 
 } instruction;
 
 instruction instruction_set[] = {
-	{"MOV", 2, (const char *[]){"reg", "reg"}, 0x89},
-	{"ADD", 2, (const char *[]){"reg", "imm"}, 0x83},
-	{"SUB", 2, (const char *[]){"reg", "reg"}, 0x29},
+	{"MOV",  (const char *[]){"reg", "reg"}, 2, 0x89},
+	{"ADD", (const char *[]){"reg", "imm"}, 2, 0x83},
+	{"SUB", (const char *[]){"reg", "reg"}, 2,0x29},
 };
 
 int instruction_set_size = (sizeof(instruction_set) / sizeof(instruction_set[0]));
