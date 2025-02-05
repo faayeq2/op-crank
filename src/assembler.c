@@ -7,22 +7,21 @@
 #define MAX_DATA_SIZE 512
 
 typedef struct sym_pair {
-	struct sym_pair *next; //8 bytes
-	char *label; // 8 bytes
-	int address; // 4 bytes
+	struct sym_pair *next; // 8 bytes
+	char *label;		   // 8 bytes
+	int address;		   // 4 bytes
 } sym_pair;
 
 typedef struct sym_table {
 	sym_pair *sym_table[MAP_SIZE];
 } sym_table;
 
-typedef struct  
-{
-	unsigned char* code_seg;
-	unsigned char* data_seg;
-	unsigned int* code_ptr;
-	unsigned int* data_ptr;
-	sym_table* table;
+typedef struct {
+	unsigned char *code_seg;
+	unsigned char *data_seg;
+	unsigned int *code_ptr;
+	unsigned int *data_ptr;
+	sym_table *table;
 	unsigned int line_num;
 } assembler_state;
 
@@ -37,9 +36,9 @@ typedef struct instruction {
 } instruction;
 
 instruction instruction_set[] = {
-	{"MOV",  (const char *[]){"reg", "reg"}, 2, 0x89},
+	{"MOV", (const char *[]){"reg", "reg"}, 2, 0x89},
 	{"ADD", (const char *[]){"reg", "imm"}, 2, 0x83},
-	{"SUB", (const char *[]){"reg", "reg"}, 2,0x29},
+	{"SUB", (const char *[]){"reg", "reg"}, 2, 0x29},
 };
 
 int instruction_set_size = (sizeof(instruction_set) / sizeof(instruction_set[0]));
@@ -95,12 +94,11 @@ void insert_label(const char *label, unsigned int addr, sym_table *table) {
 	printf("Inserted label: %s at address: %d\n", label, addr);
 }
 
-unsigned int duplicate_label(const char* token){
-	for(int i=0; i<MAP_SIZE; i++){
-		sym_pair* current = global_table.sym_table[i];
-		while (current!=NULL)
-		{
-			if (strcmp(current->label, token)==0){
+unsigned int duplicate_label(const char *token) {
+	for (int i = 0; i < MAP_SIZE; i++) {
+		sym_pair *current = global_table.sym_table[i];
+		while (current != NULL) {
+			if (strcmp(current->label, token) == 0) {
 				return 1;
 			}
 			current = current->next;
@@ -109,12 +107,9 @@ unsigned int duplicate_label(const char* token){
 	return 0;
 }
 
-void process_directives(const char* token, const char* rest_of_line, assembler_state* state){
-	
-}
+void process_directives(const char *token, const char *rest_of_line, assembler_state *state) {}
 
-
-void process_tokens(const char *line, assembler_state* state) {
+void process_tokens(const char *line, assembler_state *state) {
 
 	const char *delimiters = "\t,\n()[]; "; // split each line into tokens based on delims
 
@@ -136,12 +131,11 @@ void process_tokens(const char *line, assembler_state* state) {
 		// check if label
 		if (token[strlen(token) - 1] == ':') {
 			token[strlen(token) - 1] = '\0';
-			
-			if (duplicate_label(token)==0) { // check for duplicating labels and insert
+
+			if (duplicate_label(token) == 0) { // check for duplicating labels and insert
 				insert_label(token, *(state->code_ptr), &global_table);
 				printf("tokens = [%s]\n", token);
-			}
-			else {
+			} else {
 				printf("duplicate token : [%s]\n", token);
 			}
 
@@ -149,32 +143,32 @@ void process_tokens(const char *line, assembler_state* state) {
 			continue;
 		}
 
-		else if(token[0]=='.') { // process directives
-			const char* rest_of_line = strtok(NULL, "");
+		else if (token[0] == '.') { // process directives
+			const char *rest_of_line = strtok(NULL, "");
 			process_directives(token, rest_of_line, state);
-			token = strtok(NULL,delimiters);
+			token = strtok(NULL, delimiters);
 			continue;
 		}
 
-		else{
-		int is_instruction = 0;
+		else {
+			int is_instruction = 0;
 
-		for (int i = 0; i < instruction_set_size; i++) {
-			if (strcmp(instruction_set[i].mnemonic, token) == 0) {
-				printf("Instruction found: %s\n", token);
-				is_instruction = 1;
-				*(state->code_ptr) += instruction_set[i].operand_count + 1;
-				break;
+			for (int i = 0; i < instruction_set_size; i++) {
+				if (strcmp(instruction_set[i].mnemonic, token) == 0) {
+					printf("Instruction found: %s\n", token);
+					is_instruction = 1;
+					*(state->code_ptr) += instruction_set[i].operand_count + 1;
+					break;
+				}
+			}
+
+			if (!is_instruction) {
+				printf("Not an instruction\n");
 			}
 		}
 
-		if (!is_instruction) {
-			printf("Not an instruction\n");
-		} 
-		}
-	
 		token = strtok(NULL, delimiters);
-	}	
+	}
 
 	print_sym_table(&global_table);
 	printf("Current code pointer: %d\n", *(state->code_ptr));
@@ -205,10 +199,10 @@ int main(int argc, char *argv[]) {
 	assembler_state state = {
 		.code_seg = code_seg,
 		.data_seg = data_seg,
-        .code_ptr = &code_ptr,
-        .data_ptr = &data_ptr,
-        .table = &global_table,
-        .line_num = 0,
+		.code_ptr = &code_ptr,
+		.data_ptr = &data_ptr,
+		.table	  = &global_table,
+		.line_num = 0,
 	};
 
 	// fgets takes string, size, stream
