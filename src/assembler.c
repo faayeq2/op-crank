@@ -116,9 +116,7 @@ void process_directives(const char *token, const char *rest_of_line, assembler_s
 		printf("Switched to code seg:\n");
 		return;
 	}
-	else if(strcmp("d", token[0])==0){ // to handle data?
-
-	}
+	
 }
 
 void process_tokens(const char *line, assembler_state *state) {
