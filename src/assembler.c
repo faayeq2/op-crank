@@ -92,6 +92,7 @@ void insert_label(const char *label, unsigned int addr, sym_table *table) {
 	}
 
 	printf("Inserted label: %s at address: %d\n", label, addr);
+	
 }
 
 unsigned int duplicate_label(const char *token) {
