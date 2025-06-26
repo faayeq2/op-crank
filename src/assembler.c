@@ -133,7 +133,7 @@ void process_tokens(const char *line, assembler_state *state) {
 
 	char *cmnt_start = strchr(line_copy, ';');
 	if (cmnt_start != NULL) {
-		*(cmnt_start) = '\0'; // truncate string 
+		*(cmnt_start) = '\0'; // truncate string
 	}
 
 	char *token = strtok(line_copy, delimiters);
