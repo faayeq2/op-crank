@@ -114,7 +114,7 @@ void process_directives(const char *token, const char *rest_of_line, assembler_s
 		*(state->code_ptr) = 0; // reset code ptr when section .data
 		return;
 	} else if (strcmp(token, ".text") == 0) {
-		printf("Switched to code seg:\n");	//switch btw
+		printf("Switched to code seg:\n");	//switch
 		return;
 	}
 	
