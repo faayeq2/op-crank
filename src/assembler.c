@@ -124,7 +124,7 @@ void process_tokens(const char *line, assembler_state *state) {
 
 	const char *delimiters = "\t,\n()[]; "; // split each line into tokens based on delims
 
-	char *line_copy = malloc(strlen(line) + 1); // use line_copy as strtok changes input str
+	char *line_copy = malloc(strlen(line) + 1); // use line_copy as strtok changes input string
 	if (line_copy == NULL) {
 		perror("Couldn't allocate line");
 		exit(1);
