@@ -111,7 +111,7 @@ unsigned int duplicate_label(const char *token) {
 void process_directives(const char *token, const char *rest_of_line, assembler_state *state) {
 	if (strcmp(token, ".data") == 0) {
 		printf("Switched to data seg:\n");
-		*(state->code_ptr) = 0; // reset code ptr when section .data
+		*(state->code_ptr) = 0; // reset code ptr when section .data 
 		return;
 	} else if (strcmp(token, ".text") == 0) {
 		printf("Switched to code seg:\n");
