@@ -143,7 +143,7 @@ void process_tokens(const char *line, assembler_state *state) {
 		if (token[strlen(token) - 1] == ':') {
 			token[strlen(token) - 1] = '\0';
 
-			if (duplicate_label(token) == 0) { // check for duplicating labels and insert
+			if (duplicate_label(token) == 0) { // check for duplicating labels and insert...
 				insert_label(token, *(state->code_ptr), &global_table);
 				printf("tokens = [%s]\n", token);
 			} else {
