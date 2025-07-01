@@ -11,7 +11,7 @@ $(BIN_DIR)/assembler: $(SRC_DIR)/assembler.c
 assembler: $(BIN_DIR)/assembler
 
 run: assembler
-	./$(BIN_DIR)/assembler $(SRC_DIR)/assembler.c
+	./$(BIN_DIR)/assembler $(SRC_DIR)/program.asm
 
 clean:
 	rm -rf $(BIN_DIR)
