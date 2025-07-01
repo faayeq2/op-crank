@@ -36,10 +36,8 @@ typedef struct instruction {
 } instruction;
 
 instruction instruction_set[] = {
-	{"MOV", (const char *[]){"reg", "reg"}, 2, 0x89, 2},
-	{"ADD", (const char *[]){"reg", "imm"}, 2, 0x83, 3},
-	{"SUB", (const char *[]){"reg", "reg"}, 2, 0x29, 2},
-	{"CMP", (const char *[]){"reg", "reg"}, 2, 0x39, 2},
+	{"MOV", (const char *[]){"reg", "reg"}, 2, 0x89, 2}, {"ADD", (const char *[]){"reg", "imm"}, 2, 0x83, 3},
+	{"SUB", (const char *[]){"reg", "reg"}, 2, 0x29, 2}, {"CMP", (const char *[]){"reg", "reg"}, 2, 0x39, 2},
 	{"JMP", (const char *[]){"label"}, 1, 0xEB, 2},
 };
 
@@ -94,7 +92,6 @@ void insert_label(const char *label, unsigned int addr, sym_table *table) {
 	}
 
 	printf("Inserted label: %s at address: %d\n", label, addr);
-	
 }
 
 unsigned int duplicate_label(const char *token) {
@@ -113,13 +110,12 @@ unsigned int duplicate_label(const char *token) {
 void process_directives(const char *token, const char *rest_of_line, assembler_state *state) {
 	if (strcmp(token, ".data") == 0) {
 		printf("Switched to data seg:\n");
-		*(state->code_ptr) = 0; // reset code ptr when section .data 
+		*(state->code_ptr) = 0; // reset code ptr when section .data
 		return;
 	} else if (strcmp(token, ".text") == 0) {
 		printf("Switched to code seg:\n");
 		return;
 	}
-	
 }
 
 void process_tokens(const char *line, assembler_state *state) {
@@ -211,10 +207,14 @@ void free_sym_table(sym_table *table) {
 
 unsigned char encode_reg(const char *reg) {
 	// simple register encoding: AX=0, BX=1, CX=2, DX=3 (expand as needed)
-	if (strcmp(reg, "AX") == 0) return 0;
-	if (strcmp(reg, "BX") == 0) return 1;
-	if (strcmp(reg, "CX") == 0) return 2;
-	if (strcmp(reg, "DX") == 0) return 3;
+	if (strcmp(reg, "AX") == 0)
+		return 0;
+	if (strcmp(reg, "BX") == 0)
+		return 1;
+	if (strcmp(reg, "CX") == 0)
+		return 2;
+	if (strcmp(reg, "DX") == 0)
+		return 3;
 	return 0xFF; // invalid
 }
 
@@ -234,21 +234,19 @@ void second_pass(const char *f_name, assembler_state *state) {
 		}
 		memcpy(line_copy, line, strlen(line) + 1);
 		char *cmnt_start = strchr(line_copy, ';');
-		if (cmnt_start != NULL) *cmnt_start = '\0';
+		if (cmnt_start != NULL)
+			*cmnt_start = '\0';
 		char *token = strtok(line_copy, "\t,\n()[]; ");
 		while (token != NULL) {
 			if (token[strlen(token) - 1] == ':') {
 				token = strtok(NULL, "\t,\n()[]; ");
 				continue;
-			}
-			else if (token[0] == '.') {
+			} else if (token[0] == '.') {
 				token = strtok(NULL, "\t,\n()[]; ");
 				continue;
-			}
-			else if (strcmp(token, "DB") == 0 || strcmp(token, "DW") == 0 || strcmp(token, "DD") == 0) {
+			} else if (strcmp(token, "DB") == 0 || strcmp(token, "DW") == 0 || strcmp(token, "DD") == 0) {
 				break;
-			}
-			else {
+			} else {
 				int found = 0;
 				for (int i = 0; i < instruction_set_size; i++) {
 					if (strcmp(instruction_set[i].mnemonic, token) == 0) {
@@ -256,14 +254,15 @@ void second_pass(const char *f_name, assembler_state *state) {
 						state->code_seg[code_ptr++] = instruction_set[i].opcode;
 						for (int op = 0; op < instruction_set[i].operand_count; op++) {
 							char *operand = strtok(NULL, "\t,\n()[]; ");
-							if (operand == NULL) break;
+							if (operand == NULL)
+								break;
 							if (strcmp(instruction_set[i].operand_types[op], "reg") == 0) {
 								// encoding: write register code
-								unsigned char reg_code = encode_reg(operand);
+								unsigned char reg_code		= encode_reg(operand);
 								state->code_seg[code_ptr++] = reg_code;
 							} else if (strcmp(instruction_set[i].operand_types[op], "imm") == 0) {
 								// encoding: write immediate value
-								int imm = atoi(operand);
+								int imm						= atoi(operand);
 								state->code_seg[code_ptr++] = (unsigned char)imm;
 							} else if (strcmp(instruction_set[i].operand_types[op], "label") == 0) {
 								// resolving: find label address and write it
@@ -277,7 +276,8 @@ void second_pass(const char *f_name, assembler_state *state) {
 										}
 										cur = cur->next;
 									}
-									if (addr != -1) break;
+									if (addr != -1)
+										break;
 								}
 								if (addr == -1) {
 									printf("Undefined label: %s\n", operand);
@@ -306,6 +306,7 @@ void second_pass(const char *f_name, assembler_state *state) {
 	}
 	fwrite(state->code_seg, 1, code_ptr, out);
 	fclose(out);
+
 	printf("Machine code written to output.bin (%u bytes)\n", code_ptr);
 }
 
@@ -334,7 +335,7 @@ int main(int argc, char *argv[]) {
 		.data_seg = data_seg,
 		.code_ptr = &code_ptr,
 		.data_ptr = &data_ptr,
-		.table    = &global_table,
+		.table	  = &global_table,
 		.line_num = 0,
 	};
 

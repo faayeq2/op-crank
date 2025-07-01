@@ -1,4 +1,4 @@
-#ignore executable and read me files
+#ignore executables & unnecessary files
 *.md
 *.exe
 *.txt
