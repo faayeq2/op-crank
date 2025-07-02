@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -g -O3
 SRC_DIR=src
 BIN_DIR=bin
-.PHONY: all assembler run clean
+.PHONY: all assembler run clean #phony targets
 
 all:assembler
 
